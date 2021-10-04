@@ -3,6 +3,10 @@ CREATE DATABASE IF NOT EXISTS foodaneo;
 
 USE foodaneo;
 
+------------------------------------------------------
+-- Dishes
+------------------------------------------------------
+
 DROP TABLE IF EXISTS `restaurant`;
 CREATE TABLE IF NOT EXISTS `restaurant`(
     `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -97,3 +101,22 @@ INSERT INTO `dish_category` (id_dish, id_category) VALUES
     (9, 7),
     (10, 7),
     (11, 7);
+
+------------------------------------------------------
+-- Users
+------------------------------------------------------
+
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE IF NOT EXISTS `user`(
+    `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id_delivery_man` INT(10) UNSIGNED,
+    `id_restaurant` INT(10) UNSIGNED,
+    `first_name` VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    `last_name` VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    `email` VARCHAR(320) NOT NULL,
+    `phone` VARCHAR(14) NOT NULL,
+    `password` VARCHAR(20) NOT NULL,
+    `credit_limit` DECIMAL(9, 2) NOT NULL,
+    `deleted_at` DATETIME(0) NULL DEFAULT NULL,
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
