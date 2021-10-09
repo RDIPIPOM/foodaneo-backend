@@ -1,24 +1,43 @@
 import { connect } from '../database'
 
 export const signup = async (req, res) => {
+    const connection = await connect();
     const error = _validateparamssignup(req.body)
     if (error.length === 0) {
-        const connection = await connect();
-        const defaultCreditLimit = 1000;
-        const query = "INSERT INTO user(first_name, last_name, email, phone, password, credit_limit) VALUES (?, ?, ?, ?, ?, 1000);"
-        const [result] = await connection.query(query, [req.body.first_name, req.body.last_name, req.body.email, req.body.phone, req.body.password, defaultCreditLimit]).catch(function (err) {
-            console.log("Promise Rejected" + err);
-        });
-        res.json({
-            id: result["insertId"]
-        })
+        console.log(_is_email_unique(connection, req.body.email))
+        if (await _is_email_unique(connection, req.body.email)) {
+            const defaultCreditLimit = 1000;
+            const query = "INSERT INTO user(first_name, last_name, email, phone, password, credit_limit) VALUES (?, ?, ?, ?, ?, 1000);"
+            const [result] = await connection.query(query, [req.body.first_name, req.body.last_name, req.body.email, req.body.phone, req.body.password, defaultCreditLimit]).catch(function (err) {
+                console.log("Promise Rejected" + err);
+            });
+            res.json({
+                id: result["insertId"]
+            })
+        } else {
+            res.send([{
+                error_code: "signuperror6",
+                error: "Email already exists"
+            }])
+        }
     } else
         res.send(error)
 }
 
 export const signin = async (req, res) => {
     const connection = await connect()
-    res.json(result)
+    const query = 'SELECT * FROM user WHERE email = ? AND password = ?;';
+    const [result] = await connection.query(query, [req.body.email, req.body.password]).catch(function (err) {
+        console.log("Promise Rejected" + err);
+    });
+    if (result.length > 0)
+        res.json(result[0]["id"])
+    else {
+        res.json({
+            error_code: "signinerror1",
+            error: "User or password incorrect"
+        })
+    }
 }
 
 function _validateparamssignup(params) {
@@ -60,4 +79,17 @@ function _validateparamssignup(params) {
     }
 
     return errorlog
+}
+
+const _is_email_unique = async (connection, email) => {
+    let query = "SELECT COUNT(*) FROM user WHERE email = ?;"
+    const [existing_emails] = await connection.query(query, [email])
+    console.log(existing_emails[0]['COUNT(*)'])
+    if (existing_emails[0]['COUNT(*)'] === 0) {
+        console.log('entre 1')
+        return true
+    } else {
+        console.log('entre 2')
+        return false
+    }
 }
